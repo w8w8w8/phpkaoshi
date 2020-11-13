@@ -23,6 +23,57 @@ class Myapp extends Api
         $this->success( '请求成功', ['state'=>1, 'name'=>'刘丽丽'] );
     }
 
+
+    //get 参数
+    //获取计划 返回计划名称 开始时间结束时间  试卷名称 试卷id
+    public function GetPlan(){
+        $data = [];
+        if (!empty($this->request->get('uid'))) {
+            $uid = $this->request->get('uid');
+            $sql=@"select fa_kaoshi_plan.id as plan_id,fa_kaoshi_plan.plan_name, fa_kaoshi_plan.starttime,fa_kaoshi_plan.endtime,
+            c.exam_name, c.id as exam_id,fa_kaoshi_user_plan.`status`
+            from fa_kaoshi_plan 
+            left JOIN fa_kaoshi_exams c ON fa_kaoshi_plan.exam_id=c.id
+            left join fa_kaoshi_user_plan on fa_kaoshi_plan.id=fa_kaoshi_user_plan.plan_id and fa_kaoshi_user_plan.user_id=" . $uid  . "
+            WHERE 1 = 1 AND fa_kaoshi_plan.deletetime IS NULL";
+
+             $data = Db::query($sql);
+
+            //$result = array("rows" => $data);
+
+            $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+
+        }
+        $this->success( '请求失败', ['state'=>0, 'rows'=>$data] );
+        
+
+    }
+    public function JoinPlan(){
+        if (!empty($this->request->get('uid'))) {
+            $uid = $this->request->get('uid');
+            $plan_id = $this->request->get('plan_id');
+            $sql= @"select id from fa_kaoshi_user_plan WHERE user_id=" . $uid  . " and plan_id=" . $plan_id . "";
+            $data = Db::query($sql);
+            if(count($data)==0){
+                $sql = @"insert into fa_kaoshi_user_plan (user_id,plan_id,status) 
+                        values
+                        ('".$uid."','".$plan_id."','0')";
+                $add = Db::query($sql);
+                $sql= @"select id from fa_kaoshi_user_plan WHERE user_id=" . $uid  . " and plan_id=" . $plan_id . "";
+                $data = Db::query($sql);
+            }
+
+            $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+
+        }
+        $this->success( '请求失败', ['state'=>0, 'rows'=>$data] );
+        
+
+    }
+
+
+
+
     //get 参数uid
     //获取计划 返回计划名称 开始时间结束时间  试卷名称 试卷id 如果参加过考试：starttime 考试开始时间，score成绩
     public function GetMyPlan(){
