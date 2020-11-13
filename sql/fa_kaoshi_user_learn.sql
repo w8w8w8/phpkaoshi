@@ -10,19 +10,19 @@ Target Server Type    : MYSQL
 Target Server Version : 50726
 File Encoding         : 65001
 
-Date: 2020-11-13 17:24:52
+Date: 2020-11-13 15:14:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
--- Table structure for fa_kaoshi_user_know
+-- Table structure for fa_kaoshi_user_learn
 -- ----------------------------
-DROP TABLE IF EXISTS `fa_kaoshi_user_know`;
-CREATE TABLE `fa_kaoshi_user_know` (
+DROP TABLE IF EXISTS `fa_kaoshi_user_learn`;
+CREATE TABLE `fa_kaoshi_user_learn` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `know_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `learned` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL COMMENT '用ID',
+  `course_id` int(11) DEFAULT NULL COMMENT '课程ID',
+  `learn_time` bigint(20) DEFAULT NULL COMMENT '本次学习时常',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

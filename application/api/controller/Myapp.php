@@ -169,30 +169,119 @@ class Myapp extends Api
 
     }
 
-    //POST 参数： 试卷ID，知识点列表 [{"knowname":"111"},{"knowname":"222"}]
-    //根据试卷ID 判断是否存在知识点，不存在则写入
-    public function AddKnowledge(){
-
-        $this->success( '请求成功', ['state'=>1, 'name'=>'刘丽丽'] );
-
-    }
+    
     
 
     
 
     //记录学习时间 用户ID，课程id，学习时长（秒）
     public function SaveLearnTime(){
+        if (!empty($this->request->get('uid'))) {
+            $user_id = $this->request->get('uid');
+            $course_id = $this->request->get('course_id');
+            $learn_time = $this->request->get('learn_time');
 
-        $this->success( '请求成功', ['state'=>1, 'name'=>'刘丽丽'] );
+            $user_learn_obj = new  \addons\kaoshi\model\examination\KaoshiUserLearn;
+            $add = [
+                'user_id' => $user_id,
+                'course_id' => $course_id,
+                'learn_time' => $learn_time,
+                'addtime' => time(),
+            ];
+            $result = $user_learn_obj->save($add);
 
+            $this->success( '请求成功', ['state'=>1, 'list'=>'ok'] );
+        }
+        $this->error(__('参数错误'));
+        
+
+    }
+    //获取用户的学习总时长和次数
+    public function GetMyLearnTime(){
+
+        if (!empty($this->request->get('uid'))) {
+            $user_id = $this->request->get('uid');
+            
+            $sql="select sum(learn_time) as timelength,count(id) as rowcount from fa_kaoshi_user_learn where user_id='".$user_id."'";
+
+            $data = Db::query($sql);
+
+            $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+        }
+        $this->error(__('参数错误'));
     }
 
     //记录学过知识点 用户ID，知识点id，知识点pid默认为0
     public function SaveLearnedKnow(){
 
-        $this->success( '请求成功', ['state'=>1, 'name'=>'刘丽丽'] );
+
+        $json_string=file_get_contents("php://input");
+        
+
+        if (!empty($json_string)) {
+            
+            $list = json_decode($json_string, true);
+
+            $user_id = $list["uid"];
+            $knows = $list["knows"];
+
+            //查询知识点
+            foreach ($knows as $key => $value) {
+
+                $sql = @"select id from fa_kaoshi_know where knowid='".$value['knowid']."'";
+                $data = Db::query($sql);
+                if(count($data)==0){
+                    $sql = @"insert into fa_kaoshi_know (knowid,knowtitle,pid,knowdesc,url) 
+                            values
+                            ('".$value['knowid']."','".$value['knowtitle']."','".$value['pid']."','','".$value['url']."')";
+                    $add = Db::query($sql);
+
+                    $sql = @"select id from fa_kaoshi_know where knowid='".$value['knowid']."'";
+                    $data = Db::query($sql);
+                }
+
+                $kid = $data[0]['id'];
+                $sql = @"delete from fa_kaoshi_user_know where know_id='".$kid."'";
+                $del = Db::query($sql);
+
+                $sql = @"insert into fa_kaoshi_user_know (know_id,user_id,learned) 
+                            values
+                            ('".$kid."','".$user_id."','".$value['learned']."')";
+                $add = Db::query($sql);
+
+    
+                //$data = Db::query($sql);
+                //print_r($data[0]['id']);
+            }
+         
+
+            $this->success( '请求成功', ['state'=>1, 'list'=> $list] );
+        }
+        $this->error(__('参数错误'));
+    }
+
+    //POST 参数： 试卷ID，知识点列表 [{"knowname":"111"},{"knowname":"222"}]
+    //根据试卷ID 判断是否存在知识点，不存在则写入
+    public function GeyMyKnows(){
+        
+
+        if (!empty($this->request->get('uid'))) {
+            $user_id = $this->request->get('uid');
+            
+            $sql=@"select uk.learned,k.knowid,k.knowtitle,k.pid,k.url
+            from fa_kaoshi_user_know uk
+            left join fa_kaoshi_know k on k.id = uk.know_id
+            where uk.user_id='".$user_id."'";
+
+            $data = Db::query($sql);
+
+            $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+        }
+        $this->error(__('参数错误'));
 
     }
+
+    
 
 
 
