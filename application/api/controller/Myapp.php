@@ -52,18 +52,25 @@ class Myapp extends Api
         if (!empty($this->request->get('uid'))) {
             $uid = $this->request->get('uid');
             $plan_id = $this->request->get('plan_id');
-            $sql= @"select id from fa_kaoshi_user_plan WHERE user_id=" . $uid  . " and plan_id=" . $plan_id . "";
+
+            $sql= @"select id from fa_kaoshi_user_plan WHERE plan_id=" . $plan_id . "";
             $data = Db::query($sql);
-            if(count($data)==0){
-                $sql = @"insert into fa_kaoshi_user_plan (user_id,plan_id,status) 
-                        values
-                        ('".$uid."','".$plan_id."','0')";
-                $add = Db::query($sql);
+            if(count($data)>0){
                 $sql= @"select id from fa_kaoshi_user_plan WHERE user_id=" . $uid  . " and plan_id=" . $plan_id . "";
                 $data = Db::query($sql);
-            }
+                if(count($data)==0){
+                    $sql = @"insert into fa_kaoshi_user_plan (user_id,plan_id,status) 
+                            values
+                            ('".$uid."','".$plan_id."','0')";
+                    $add = Db::query($sql);
+                    $sql= @"select id from fa_kaoshi_user_plan WHERE user_id=" . $uid  . " and plan_id=" . $plan_id . "";
+                    $data = Db::query($sql);
+                }
 
-            $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+                $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+            }else{
+                $this->success( '请求失败', ['state'=>0, 'rows'=>'没有该计划'] );
+            }
 
         }
         $this->success( '请求失败', ['state'=>0, 'rows'=>$data] );
