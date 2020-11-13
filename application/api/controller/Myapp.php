@@ -53,7 +53,7 @@ class Myapp extends Api
             $uid = $this->request->get('uid');
             $plan_id = $this->request->get('plan_id');
 
-            $sql= @"select id from fa_kaoshi_user_plan WHERE plan_id=" . $plan_id . "";
+            $sql= @"select id from fa_kaoshi_plan WHERE id=" . $plan_id . "";
             $data = Db::query($sql);
             if(count($data)>0){
                 $sql= @"select id from fa_kaoshi_user_plan WHERE user_id=" . $uid  . " and plan_id=" . $plan_id . "";
