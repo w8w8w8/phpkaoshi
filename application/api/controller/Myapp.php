@@ -79,8 +79,6 @@ class Myapp extends Api
     }
 
 
-
-
     //get 参数uid
     //获取计划 返回计划名称 开始时间结束时间  试卷名称 试卷id 如果参加过考试：starttime 考试开始时间，score成绩
     public function GetMyPlan(){
@@ -132,15 +130,22 @@ class Myapp extends Api
                 $questionsdata = '0';
             }
 
+            /***
             $questions = [];
             $question_obj = Db::name('KaoshiQuestions');
-            $where["id"]=["in",$questionsdata];
+            $where["fa_kaoshi_questions.id"]=["in",$questionsdata];
             $questions = $question_obj
             ->where($where)
             ->select();
+            $list = collection($questions)->toArray(); */
 
-            $list = collection($questions)->toArray();
 
+            $sql = @"SELECT fa_kaoshi_questions.*, u.user_answer,u.user_score,u.user_result
+            FROM fa_kaoshi_questions
+            LEFT JOIN fa_kaoshi_user_question u ON fa_kaoshi_questions.id=u.question_id and u.user_id='".$uid."'
+            WHERE fa_kaoshi_questions.id IN(".$questionsdata.")";
+
+            $list = Db::query($sql);
 
             $this->success('请求成功', ['state'=>1, 'rows'=>$list , 'typelist'=>$typelist, 'fenzhi'=>$fenzhi ] );
 
@@ -227,10 +232,6 @@ class Myapp extends Api
 
     }
 
-    
-    
-
-    
 
     //记录学习时间 用户ID，课程id，学习时长（秒）
     public function SaveLearnTime(){
