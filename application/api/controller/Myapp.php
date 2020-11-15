@@ -143,7 +143,10 @@ class Myapp extends Api
             $sql = @"SELECT fa_kaoshi_questions.*, u.user_answer,u.user_score,u.user_result
             FROM fa_kaoshi_questions
             LEFT JOIN fa_kaoshi_user_question u ON fa_kaoshi_questions.id=u.question_id and u.user_id='".$uid."'
+            and u.exam_id=".$examid."
             WHERE fa_kaoshi_questions.id IN(".$questionsdata.")";
+
+            //print_r($sql);
 
             $list = Db::query($sql);
 
