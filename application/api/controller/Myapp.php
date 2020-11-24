@@ -343,6 +343,113 @@ class Myapp extends Api
 
     }
 
+
+    public function GetAllStuLearnTime(){
+
+        try{
+
+            $sql=@"select fa_user.username,fa_user.nickname,fa_user.id as user_id, 
+            (select sum(learn_time) from fa_kaoshi_user_learn where 
+            fa_kaoshi_user_learn.user_id = fa_user.id) as timelength,
+            (select count(id) from fa_kaoshi_user_learn where 
+            fa_kaoshi_user_learn.user_id = fa_user.id) as rowcount
+            from fa_user";
+
+
+            $data = Db::query($sql);
+
+            $this->success( '请求成功', ['state'=>1, 'rows'=>$data] );
+        }
+        catch (Exception $e) {
+            //$this->error($e->getMessage());
+
+            $this->error(__('参数错误' + getMessage()));
+        }
+        
+    }
+
+
+    public function GetRankByPlanid(){
+
+        try{
+
+            if (!empty($this->request->get('plan_id'))) {
+                $planid = $this->request->get('plan_id');
+
+                $sql=@"select fa_kaoshi_user_plan.*,fa_user.username,fa_user.nickname, IFNULL(fa_kaoshi_user_exams.score,0)  as score
+                from fa_kaoshi_user_plan
+                left join  fa_kaoshi_user_exams on fa_kaoshi_user_exams.user_plan_id = fa_kaoshi_user_plan.id 
+                left join fa_user on fa_user.id = fa_kaoshi_user_plan.user_id
+                 where fa_kaoshi_user_plan.plan_id=".$planid ."
+                order by fa_kaoshi_user_exams.score desc";
+
+                $data = Db::query($sql);
+
+                $sql = @"select fa_kaoshi_plan.plan_name,fa_kaoshi_plan.exam_id,fa_kaoshi_plan.subject_id
+                , fa_kaoshi_subject.subject_name
+                from fa_kaoshi_plan
+                left join fa_kaoshi_subject on fa_kaoshi_subject.id = fa_kaoshi_plan.subject_id
+                where fa_kaoshi_plan.id=".$planid ." ";
+
+                $plan = Db::query($sql);
+
+                $this->success( '请求成功', ['state'=>1, 'rows'=>$data, 'plan'=>$plan] );
+
+            }else{
+
+                $this->error(__('参数错误'));
+            }
+        }
+        catch (Exception $e) {
+            //$this->error($e->getMessage());
+
+            $this->error(__('参数错误' + getMessage()));
+        }
+        
+    }
+
+
+    public function GetRankByExamid(){
+
+        try{
+
+            if (!empty($this->request->get('exam_id'))) {
+                $examid = $this->request->get('exam_id');
+
+                $sql=@"select fa_kaoshi_user_plan.*,fa_user.username,fa_user.nickname, IFNULL(fa_kaoshi_user_exams.score,0) as score
+                from fa_kaoshi_user_plan
+                left join  fa_kaoshi_user_exams on fa_kaoshi_user_exams.user_plan_id = fa_kaoshi_user_plan.id 
+                left join fa_user on fa_user.id = fa_kaoshi_user_plan.user_id
+                left join fa_kaoshi_plan on fa_kaoshi_plan.id = fa_kaoshi_user_plan.plan_id
+                 where fa_kaoshi_plan.exam_id=".$examid ."
+                order by fa_kaoshi_user_exams.score desc";
+
+                $data = Db::query($sql);
+
+                $sql = @"select fa_kaoshi_plan.plan_name,fa_kaoshi_plan.exam_id,fa_kaoshi_plan.subject_id
+                , fa_kaoshi_subject.subject_name
+                from fa_kaoshi_plan
+                left join fa_kaoshi_subject on fa_kaoshi_subject.id = fa_kaoshi_plan.subject_id
+                where fa_kaoshi_plan.exam_id=".$examid ." ";
+
+                $plan = Db::query($sql);
+
+                $this->success( '请求成功', ['state'=>1, 'rows'=>$data, 'plan'=>$plan] );
+
+            }else{
+
+                $this->error(__('参数错误'));
+            }
+        }
+        catch (Exception $e) {
+            //$this->error($e->getMessage());
+
+            $this->error(__('参数错误' + getMessage()));
+        }
+        
+    }
+
+
     
 
 
