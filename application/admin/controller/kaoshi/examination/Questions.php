@@ -64,6 +64,8 @@ class Questions extends Backend
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            //print_r($where);
+
             $total = $this->model
                 ->with(['subject', 'admin'])
                 ->where($where)

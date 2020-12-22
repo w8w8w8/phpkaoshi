@@ -69,6 +69,45 @@ class Subject extends Backend
     }
 
 
+    public function getSubTree()
+    {
+		$this->relationSearch = true;
+        //设置过滤方法
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+
+            $list = $this->model
+                ->where($where)
+                ->order($sort, $order)
+                ->paginate($limit);
+				
+		
+            $arrs = array();
+            //调用函数recur
+            $arrs = $this->recur($arrs,$list);
+
+            return json($arrs);
+        }
+        return $this->view->fetch();
+    }
+    //定义函数递归调用获得需要的结构的数组
+    public function  recur ($arrs,$data,$pid=0) {
+
+        foreach ($data as $k => $v){
+            if($v['pid'] == $pid){
+                $arr = array('name' => $v["subject_name"],'id'=>$v['id'],'children'=>array());
+                $arr['children'] = $this->recur($arr["children"],$data,$v['id']);
+
+                array_push($arrs,$arr);
+            }
+        }
+        return $arrs;
+    }
 
     
 
