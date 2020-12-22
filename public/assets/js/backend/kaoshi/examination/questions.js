@@ -104,11 +104,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             require(['jquery.ztree.core'], function (ztree) {
 
                 var zNodes = [];
+                zNodes.push({name: "全部试题", id: 0, children: []});
                  // kaoshi/subject/index
                 //zNodes = [];
                 $.ajax({url:"kaoshi/subject/getSubTree",async: false,success:function(result){
-                    zNodes = result;
+                    zNodes[0].children = result;
                 }});
+                
         
                 var setting = {
                     async: {
